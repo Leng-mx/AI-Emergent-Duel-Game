@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奇点密话 · Directive Loop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <script>
+        function showPageErrorNotice(message) {
+            let el = document.getElementById('runtime-error-banner');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'runtime-error-banner';
+                el.className = 'ui-notice danger';
+                el.style.zIndex = '1750';
+                document.body.appendChild(el);
+            }
+            el.textContent = message;
+            el.classList.remove('hidden');
+        }
+        window.addEventListener('error', function(event) {
+            const msg = 'JS Error: ' + event.message + ' | File: ' + event.filename + ' | Line: ' + event.lineno;
+            console.error(msg);
+            showPageErrorNotice(msg);
+        });
+        window.addEventListener('unhandledrejection', function(event) {
+            const msg = 'Promise Error: ' + event.reason;
+            console.error(msg);
+            showPageErrorNotice(msg);
+        });
+    </script>
+    <div id="app">
+        <div class="ambient-layer ambient-grid"></div>
+        <div class="ambient-layer ambient-orb orb-a"></div>
+        <div class="ambient-layer ambient-orb orb-b"></div>
+        <div class="ambient-layer ambient-scan"></div>
+        <!-- 全局加载遮罩 -->
+        <div id="loading-screen" class="hidden">
+            <div class="loader-content">
+                <div class="spinner"></div>
+                <div class="loading-text">系统初始化中...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="loading-progress"></div>
+                </div>
+                <div class="loading-log" id="loading-log">
+                    <div>> 正在连接神经网络...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 故事背景介绍页 -->
+        <div id="intro-screen" class="pending">
+            <div class="intro-bg"></div>
+            <div class="intro-content">
+                <h1 class="glitch-text" data-text="奇点降临 · 2077">奇点降临 · 2077</h1>
+                <div class="intro-text">
+                    <p>第四次协议战争后，城市主权被算法议会接管，人类指挥官只能在加密通话中争夺叙事与情报控制权。</p>
+                    <p>你将以战局指挥官身份介入一场 10 回合对抗：每回合先进行邀请博弈，再进入限额聊天室，最后由敌我 Director 基于全局上下文推演下一步。</p>
+                    <p>你说出的每一句话都不只是对白，而是会改变好感、触发增援、影响三条战局维度并决定终局清算的战略动作。</p>
+                </div>
+            </div>
+            <button id="skip-intro-btn" disabled>跳过 (3s)</button>
+        </div>
+
+        <!-- 游戏流程介绍页 -->
+        <div id="flow-screen" class="pending hidden">
+            <div class="intro-bg flow-bg"></div>
+            <div class="flow-content">
+                <h1 class="glitch-text" data-text="作战流程 · Directive Loop">作战流程 · Directive Loop</h1>
+                <p class="flow-subtitle">在进入战局前，先完成一次完整流程简报</p>
+                <div class="flow-grid">
+                    <article class="flow-card">
+                        <h3>Phase 1 邀请阶段</h3>
+                        <p>玩家优先发起邀请。若同一目标被多人邀请，目标只接受一方，其他邀请者会被拒绝并自动重试。</p>
+                    </article>
+                    <article class="flow-card">
+                        <h3>Phase 2 聊天室阶段</h3>
+                        <p>每个角色每回合仅参与一次通话，玩家也只有一次。每间聊天室每位发言者上限 10 次。</p>
+                    </article>
+                    <article class="flow-card">
+                        <h3>Phase 3 Director 推演</h3>
+                        <p>回合结束后，敌我 Director 同步推演：敌方可增援，我方可提案增援并等待你批准。</p>
+                    </article>
+                    <article class="flow-card">
+                        <h3>Phase 4 计分清算</h3>
+                        <p>对话会影响积分与维度（动量/情报/协同）。第 10 回合后按权重统一清算胜负。</p>
+                    </article>
+                </div>
+            </div>
+            <button id="skip-flow-btn" disabled>跳过 (3s)</button>
+        </div>
+
+        <!-- 配置面板 -->
+        <div id="config-panel" class="panel hidden">
+            <div class="setup-head">
+                <h1>战局接入终端</h1>
+                <p>10 回合阵营对抗：邀请阶段 -> 聊天室阶段 -> Director 推演</p>
+                <div class="quick-links">
+                    <a href="/pages/rules.html">查看对局规则</a>
+                    <a href="/pages/report.html">打开战报页面</a>
+                </div>
+                <div class="setup-progress">
+                    <button id="setup-step-api" class="setup-chip active" type="button">01 API 接入</button>
+                    <button id="setup-step-role" class="setup-chip" type="button">02 角色设定</button>
+                </div>
+            </div>
+
+            <section id="setup-api-page" class="setup-page">
+                <article class="setup-brief-card">
+                    <h3>阶段 1：指挥链路接入</h3>
+                    <p>这一阶段用于连接战局推演引擎。连接成功后，敌我 Director 会在每回合结束时基于全局上下文推演下一步部署。</p>
+                    <ul>
+                        <li>你每轮先进入邀请阶段，随后才进入聊天室阶段。</li>
+                        <li>同一目标被多人邀请时，目标只接受一人，其他邀请方会自动重试。</li>
+                        <li>模型质量会直接影响敌方应答、增援判断与战局节奏。</li>
+                    </ul>
+                </article>
+                <article class="setup-form-card">
+                    <div class="input-group">
+                        <label for="api-key">API Key (OpenAI 格式)</label>
+                        <input type="password" id="api-key" placeholder="sk-..." autocomplete="off" value="">
+                    </div>
+                    <div class="input-group">
+                        <label for="api-url">API Base URL</label>
+                        <input type="text" id="api-url" placeholder="https://api.openai.com/v1" value="https://api.deepseek.com">
+                    </div>
+                    <div class="input-group">
+                        <label for="model-name">模型名称</label>
+                        <input type="text" id="model-name" placeholder="例如：deepseek-chat / gpt-4o-mini" value="deepseek-chat">
+                    </div>
+                    <div class="setup-actions">
+                        <button id="setup-next-btn" class="setup-action-btn" type="button">下一步：角色设定</button>
+                    </div>
+                </article>
+            </section>
+
+            <section id="setup-role-page" class="setup-page hidden">
+                <article class="setup-brief-card">
+                    <h3>阶段 2：指挥官身份建档</h3>
+                    <p>你的身份会影响邀请策略与对话风格。每回合你最多参与一次通话，发言内容会影响积分、情报渗透和阵营协同。</p>
+                    <ul>
+                        <li>关键词倾向会改变敌我双方得分走向。</li>
+                        <li>对话中的好感变化会影响后续邀请和增援判断。</li>
+                        <li>10 回合后按动量/情报/协同/总积分统一清算。</li>
+                    </ul>
+                </article>
+                <article class="setup-form-card">
+                    <div class="input-group">
+                        <label for="player-name">代号</label>
+                        <input type="text" id="player-name" placeholder="例如：幽灵" value="V">
+                    </div>
+                    <div class="input-group">
+                        <label for="player-role">职业</label>
+                        <select id="player-role">
+                            <option value="赏金猎人">赏金猎人 (战术突破)</option>
+                            <option value="黑客">黑客 (情报渗透)</option>
+                            <option value="外交官">外交官 (邀约与谈判)</option>
+                            <option value="流浪者">流浪者 (生存与应变)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="player-personality">性格关键词（逗号分隔）</label>
+                        <input type="text" id="player-personality" placeholder="例如：冷静, 果断, 善于误导" value="机智, 谨慎, 善于伪装">
+                    </div>
+                    <div class="setup-actions">
+                        <button id="setup-back-btn" class="setup-action-btn ghost" type="button">返回 API 接入</button>
+                        <button id="start-btn" class="setup-action-btn" type="button">进入战局</button>
+                    </div>
+                </article>
+            </section>
+        </div>
+
+    </div>
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

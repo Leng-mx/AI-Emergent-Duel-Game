@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>回合聊天室 - 奇点密话 · Directive Loop</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/chatrooms.css">
+</head>
+<body>
+    <main class="chatrooms-wrap">
+        <section class="chatrooms-card">
+            <div class="chatrooms-head">
+                <div>
+                    <h1>回合聊天室总览</h1>
+                    <p id="status-text" class="status-text">等待加载会话数据...</p>
+                </div>
+                <button id="refresh-btn" type="button">手动刷新</button>
+            </div>
+
+            <div id="meta-grid" class="meta-grid"></div>
+
+            <div id="rooms-grid" class="rooms-grid"></div>
+        </section>
+    </main>
+
+    <script type="module" src="../js/chatrooms.js"></script>
+</body>
+</html>

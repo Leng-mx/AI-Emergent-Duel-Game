@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战报中心 - 奇点密话 · Directive Loop</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/report.css">
+</head>
+<body>
+    <main class="report-wrap">
+        <section class="report-card">
+            <h1>战报中心</h1>
+            <p>输入会话 ID 查看完整战报（仅对局结束后可查看敌方推演记录）。</p>
+
+            <div class="search-row">
+                <input id="session-input" type="text" placeholder="session_xxx">
+                <button id="load-report-btn">加载战报</button>
+            </div>
+
+            <div id="status" class="status-text">等待查询...</div>
+
+            <div id="summary" class="report-grid hidden"></div>
+
+            <h2>我方 Director 记录</h2>
+            <div id="ally-history" class="history-list"></div>
+
+            <h2>敌方 Director 记录</h2>
+            <div id="enemy-history" class="history-list"></div>
+
+        </section>
+    </main>
+
+    <script type="module" src="../js/report.js"></script>
+</body>
+</html>

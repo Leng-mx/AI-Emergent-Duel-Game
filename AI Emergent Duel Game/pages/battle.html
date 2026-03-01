@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战局终端 - 奇点密话 · Directive Loop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <script>
+        function showPageErrorNotice(message) {
+            let el = document.getElementById('runtime-error-banner');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'runtime-error-banner';
+                el.className = 'ui-notice danger';
+                el.style.zIndex = '1750';
+                document.body.appendChild(el);
+            }
+            el.textContent = message;
+            el.classList.remove('hidden');
+        }
+        window.addEventListener('error', function(event) {
+            const msg = 'JS Error: ' + event.message + ' | File: ' + event.filename + ' | Line: ' + event.lineno;
+            console.error(msg);
+            showPageErrorNotice(msg);
+        });
+        window.addEventListener('unhandledrejection', function(event) {
+            const msg = 'Promise Error: ' + event.reason;
+            console.error(msg);
+            showPageErrorNotice(msg);
+        });
+    </script>
+    <div id="app">
+        <div class="ambient-layer ambient-grid"></div>
+        <div class="ambient-layer ambient-orb orb-a"></div>
+        <div class="ambient-layer ambient-orb orb-b"></div>
+        <div class="ambient-layer ambient-scan"></div>
+
+        <div id="game-interface">
+            <header>
+                <div class="status-bar">
+                    <span id="player-status">战局同步中...</span>
+                    <div class="control-group">
+                        <button id="auto-play-btn" class="secondary-btn">发起回合邀请</button>
+                        <button id="chatrooms-btn" class="secondary-btn">聊天室页</button>
+                        <button id="rules-btn" class="secondary-btn">规则页</button>
+                        <button id="report-btn" class="secondary-btn">战报页</button>
+                        <button id="reset-btn">重置游戏</button>
+                    </div>
+                </div>
+                <div id="round-progress" class="round-progress">
+                    <div class="round-progress-head">
+                        <span id="round-progress-text">回合进度：0/10</span>
+                        <span id="round-progress-percent">0%</span>
+                    </div>
+                    <div class="round-progress-track">
+                        <div id="round-progress-fill" class="round-progress-fill"></div>
+                    </div>
+                </div>
+                <section class="entry-rules">
+                    <details>
+                        <summary>入场规则与计分说明（建议先看）</summary>
+                        <div class="entry-rules-body">
+                            <div class="entry-rules-grid">
+                                <article class="entry-rule-card">
+                                    <h4>回合流程</h4>
+                                    <ol>
+                                        <li>先进入邀请阶段：玩家优先邀请，其余角色也会邀请。</li>
+                                        <li>同一目标被多人邀请时，只会接受一人并拒绝其他人。</li>
+                                        <li>被拒绝的邀请方会继续尝试邀请，直到邀请阶段收敛。</li>
+                                        <li>邀请结束后才进入聊天室阶段，全部聊天室结束后本回合结束。</li>
+                                        <li>回合结束才进行 Director 推演，然后由你决定是否开下一回合。</li>
+                                    </ol>
+                                </article>
+                                <article class="entry-rule-card">
+                                    <h4>聊天室规则</h4>
+                                    <ul>
+                                        <li>每个角色每回合最多参与一次通话。</li>
+                                        <li>玩家每回合也只有一次通话机会，且只能接入本回合分配对象。</li>
+                                        <li>同一对角色在连续回合会轮换邀请方身份。</li>
+                                        <li>每个聊天室每位发言者上限 10 次。</li>
+                                    </ul>
+                                </article>
+                            </div>
+                            <article class="entry-rule-card score-card">
+                                <h4>得分来源（每次对话后结算）</h4>
+                                <div class="score-table">
+                                    <div><strong>基础分</strong><span>与敌方对话默认我方+1、敌方+1；与我方队友对话默认我方+1。</span></div>
+                                    <div><strong>关键词倾向</strong><span>合作/情报/谈判等词会提高我方得分；压制/歼灭/威胁等词会提高敌方得分。</span></div>
+                                    <div><strong>好感变化</strong><span>敌方回复中的好感上升额外利好我方，好感下降额外利好敌方。</span></div>
+                                    <div><strong>三条战局维度</strong><span>同时累积战术动量、情报渗透、阵营协同，用于十轮后总清算。</span></div>
+                                    <div><strong>十轮清算权重</strong><span>战术动量×3、情报渗透×3、阵营协同×2、总积分×4。</span></div>
+                                </div>
+                            </article>
+                        </div>
+                    </details>
+                </section>
+            </header>
+            
+            <main class="battle-wechat">
+                <aside id="chat-nav" class="chat-nav">
+                    <div class="chat-nav-header">
+                        <div class="chat-nav-title"><i class="fas fa-comments"></i> 聊天室导航</div>
+                        <div class="chat-nav-subtitle">点击房间查看完整对话</div>
+                    </div>
+                    <div id="chat-nav-list" class="chat-nav-list"></div>
+                </aside>
+
+                <div id="scene-log" class="log-area chat-stage">
+                    <div id="chat-view" class="chat-view">
+                        <div class="chat-header-bar">
+                            <div class="chat-header-info">
+                                <span id="chat-target-name">请选择聊天室</span>
+                                <span id="chat-target-status" class="status-tag">邀请阶段未完成</span>
+                            </div>
+                            <div class="chat-header-actions">
+                                <button id="room-connect-btn" class="secondary-btn" type="button">接入聊天室</button>
+                                <button id="hangup-btn" class="danger-btn"><i class="fas fa-phone-slash"></i> 结束聊天室</button>
+                            </div>
+                        </div>
+                        <div id="lobby-view" class="lobby-view">
+                            <div class="lobby-icon"><i class="fas fa-satellite-dish"></i></div>
+                            <h2>聊天室监看终端</h2>
+                            <p>左侧选择任意聊天室；右侧可查看战局态势与双方阵营动态。</p>
+                        </div>
+                        <div id="chat-content" class="chat-content hidden"></div>
+                    </div>
+                </div>
+
+                <aside id="intel-panel" class="intel-panel situation-panel">
+                    <div class="intel-header">
+                        <i class="fas fa-wave-square"></i>
+                        战局态势面板
+                    </div>
+                    <div class="intel-lane intel-live-intent-lane intel-always-visible" id="intel-live-lane">
+                        <div class="intel-lane-title intel-live-title">敌方即时意图</div>
+                        <div class="live-intent-wrap">
+                            <article class="live-intent-card thought">
+                                <div class="live-intent-head">
+                                    <span>内心独白</span>
+                                    <span id="live-thought-time" class="live-intent-time">--:--:--</span>
+                                </div>
+                                <div id="live-thought-text" class="live-intent-text">等待敌方思维信号...</div>
+                            </article>
+                            <article class="live-intent-card action">
+                                <div class="live-intent-head">
+                                    <span>动作</span>
+                                    <span id="live-action-time" class="live-intent-time">--:--:--</span>
+                                </div>
+                                <div id="live-action-text" class="live-intent-text">等待敌方动作信号...</div>
+                            </article>
+                        </div>
+                    </div>
+                    <div id="intel-tabs-lane" class="intel-lane intel-feed-tabs-lane">
+                        <div class="intel-lane-title">战局日志</div>
+                        <div class="intel-tabs">
+                            <button id="intel-tab-system" class="intel-tab-btn active" type="button" data-channel="system">系统</button>
+                            <button id="intel-tab-ally" class="intel-tab-btn" type="button" data-channel="ally">我方</button>
+                            <button id="intel-tab-enemy" class="intel-tab-btn" type="button" data-channel="enemy">敌方</button>
+                        </div>
+                        <div class="intel-tab-panels">
+                            <div id="intel-system-feed" class="intel-feed intel-tab-panel active" data-channel="system"></div>
+                            <div id="intel-ally-feed" class="intel-feed intel-tab-panel" data-channel="ally"></div>
+                            <div id="intel-enemy-feed" class="intel-feed intel-tab-panel" data-channel="enemy"></div>
+                        </div>
+                    </div>
+                    <div class="intel-lane intel-room-lane">
+                        <div class="intel-lane-title">回合聊天室概览</div>
+                        <div id="pair-room-meta" class="room-meta">当前回合聊天室尚未开启。</div>
+                        <div id="pair-room-summary" class="pair-room-summary"></div>
+                        <div class="pair-room-actions">
+                            <button id="room-open-btn" class="room-btn active" type="button">打开聊天室页</button>
+                        </div>
+                    </div>
+                    <div class="intel-lane intel-faction-lane">
+                        <div class="intel-lane-title">阵营态势</div>
+                        <div class="faction-mini-grid">
+                            <div id="enemy-panel" class="faction-panel mini">
+                                <div class="faction-header enemy-header">
+                                    <i class="fas fa-skull"></i> 敌方信号源
+                                </div>
+                                <div id="enemy-list" class="character-list"></div>
+                            </div>
+                            <div id="ally-panel" class="faction-panel mini">
+                                <div class="faction-header ally-header">
+                                    <i class="fas fa-shield-alt"></i> 我方通讯频段
+                                </div>
+                                <div id="ally-list" class="character-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <div id="thinking-progress-bar" class="hidden">
+                    <div class="thinking-text"><span id="thinking-label">系统处理中...</span> <span id="thinking-timer">0.0s</span></div>
+                    <div class="thinking-bar-bg">
+                        <div class="thinking-bar-fill"></div>
+                    </div>
+                </div>
+            </main>
+
+            <footer>
+                <div class="action-area">
+                    <button id="voice-btn" class="icon-btn" title="语音输入(模拟)"><i class="fas fa-microphone"></i></button>
+                    <div class="input-wrapper">
+                        <input type="text" id="player-input" placeholder="输入你的行动或对话..." autocomplete="off">
+                        <div class="typing-indicator hidden" id="typing-indicator">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <button id="send-btn"><i class="fas fa-paper-plane"></i> 发送</button>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+.report-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+}
+
+.report-card {
+    width: min(960px, 94vw);
+    background: linear-gradient(160deg, rgba(8, 26, 38, 0.94), rgba(7, 20, 30, 0.92));
+    border: 1px solid rgba(36, 210, 255, 0.28);
+    border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.42);
+    padding: 1.4rem;
+}
+
+.report-card h1,
+.report-card h2,
+.report-card h3 {
+    margin: 0.5rem 0 0.8rem;
+    font-family: var(--font-display);
+    letter-spacing: 0.04em;
+}
+
+.search-row {
+    display: flex;
+    gap: 0.7rem;
+    margin: 1rem 0;
+}
+
+.search-row input {
+    flex: 1;
+    padding: 0.7rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid rgba(36, 210, 255, 0.3);
+    background: rgba(10, 27, 38, 0.85);
+    color: var(--text-color);
+}
+
+.search-row button {
+    width: auto;
+    margin: 0;
+    border-radius: 10px;
+}
+
+.status-text {
+    margin-bottom: 1rem;
+    font-size: 0.92rem;
+    color: #9ecfe2;
+}
+
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.8rem;
+    margin: 1rem 0;
+}
+
+.mini-card {
+    background: rgba(10, 29, 42, 0.8);
+    border: 1px solid rgba(36, 210, 255, 0.2);
+    border-radius: 10px;
+    padding: 0.8rem;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.history-item {
+    background: rgba(10, 29, 42, 0.72);
+    border: 1px solid rgba(36, 210, 255, 0.16);
+    border-radius: 10px;
+    padding: 0.7rem 0.8rem;
+}
+
+.history-item h4 {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-display);
+    font-size: 0.86rem;
+}
+
+.history-item ul {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.history-item li {
+    margin: 0.25rem 0;
+    line-height: 1.45;
+    color: #d3e6ef;
+}
+
+.actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.btn-link {
+    display: inline-block;
+    text-decoration: none;
+    color: #031018;
+    background: linear-gradient(135deg, #23cbff, #35f4c3);
+    padding: 0.55rem 0.9rem;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.btn-link.ghost {
+    color: var(--text-color);
+    background: rgba(10, 27, 38, 0.8);
+    border: 1px solid rgba(36, 210, 255, 0.28);
+}
+
+.rule-list {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.rule-list li {
+    margin: 0.4rem 0;
+}

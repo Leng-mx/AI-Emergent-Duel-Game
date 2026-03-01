@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>对局规则 - 奇点密话 · Directive Loop</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/report.css">
+</head>
+<body>
+    <main class="report-wrap">
+        <section class="report-card">
+            <h1>对局规则总览</h1>
+            <p>当前版本为回合制阵营对决，核心流程如下。</p>
+            <ol class="rule-list">
+                <li>每轮开始前需要发起邀请。</li>
+                <li>邀请阶段中，玩家优先作为邀请方发起邀请；其余角色也会发起邀请。</li>
+                <li>若同一目标被多人邀请，目标只会接受一名邀请方，其他邀请方会被拒绝。</li>
+                <li>被拒绝的邀请方会重新获得邀请机会，继续尝试邀请其他角色。</li>
+                <li>邀请阶段结束后才进入聊天室阶段；每个角色每回合最多参与一次通话。</li>
+                <li>回合无时间限制，需全部聊天室结束聊天后才会结束当前回合。</li>
+                <li>每次行动会累计回合积分和总积分。</li>
+                <li>每次互动还会影响三条战局维度：战术动量 / 情报渗透 / 阵营协同。</li>
+                <li>回合结束后，才执行 Director AI 分析。</li>
+                <li>分析完成后，由玩家决定是否开始下一轮。</li>
+                <li>我方分析过程每轮可见；敌方分析记录在游戏结束后解锁。</li>
+                <li>可窥探多聊天室；每间聊天室内每名成员发言上限为 10 次。</li>
+            </ol>
+
+            <div class="report-grid">
+                <article class="mini-card">
+                    <h3>胜利条件</h3>
+                    <p>固定 10 回合后统一清算：比较战术动量、情报渗透、阵营协同与总积分，按胜点决定最终赢家。</p>
+                </article>
+                <article class="mini-card">
+                    <h3>回合状态</h3>
+                    <p><code>pending_invites -> active -> ended -> director_done</code></p>
+                </article>
+                <article class="mini-card">
+                    <h3>关键按钮</h3>
+                    <p>顶部“回合按钮”会根据状态自动切换成邀请/推演/下一轮。</p>
+                </article>
+            </div>
+
+        </section>
+    </main>
+</body>
+</html>
